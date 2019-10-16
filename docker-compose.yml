@@ -1,0 +1,169 @@
+version: "3.7"
+services: 
+  mongo:
+    image: mongo:$TAG_MONGO
+    hostname: mongo
+    environment:
+      - RS_HOST=mongo:${PORT_MONGO}
+      - PROVENDB_DB=$PROVENDB_DB 
+      - MONGODB_PORT=${PORT_MONGO}
+    volumes: 
+      - provendb-data:/data/db
+      - type: bind
+        source: ./scripts/mongo
+        target: /docker-entrypoint-initdb.d/
+    ports: 
+      - ${EXTERNAL_PORT_MONGO}:${PORT_MONGO}
+    healthcheck:
+      test: ["CMD-SHELL", "mongo -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD  --port $$MONGODB_PORT --eval 'typeof rs.status().members[0] === \"undefined\" ? quit(1) : quit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s  
+    command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "${PORT_MONGO}"]
+
+  treecache:
+    image: mongo:$TAG_MONGO
+    hostname: treecache
+    environment: 
+      - MONGODB_PORT=${PORT_TREECACHE}
+      - RS_HOST=treecache:${PORT_TREECACHE}  
+    healthcheck:
+      test: ["CMD-SHELL", "mongo -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD  --port ${PORT_TREECACHE} --eval 'typeof rs.status().members[0] === \"undefined\" ? quit(1) : quit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s  
+    ports:
+      - ${PORT_TREECACHE}
+    volumes: 
+      - type: bind
+        source: ./scripts/mongo
+        target: /docker-entrypoint-initdb.d/
+    command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "${PORT_TREECACHE}"]
+
+  concierge:
+    image: asia.gcr.io/provendb/provendb-concierge:$TAG_CONCIERGE
+    ports:
+      - ${PORT_CONCIERGE}
+    environment:
+      - PROVENDB_DB=$PROVENDB_DB  
+      - PORT_MONGO=${PORT_MONGO}    
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-concierge
+        target: /scripts   
+    command: ["/bin/bash", 
+                    "-c", 
+                    "chmod a+x /scripts/init.sh && /scripts/init.sh"
+      ]    
+
+  #mongo auth for proxy
+  mongoauth:
+    image: mongo:$TAG_MONGO
+    hostname: mongoauth
+    ports:
+      - ${PORT_MONGOAUTH}
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --port ${PORT_MONGOAUTH} --eval \"db.runCommand({\"ping\": 1})\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 3s    
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-auth
+        target: /scripts  
+    environment:
+      - MONGODB_PORT=${PORT_MONGOAUTH}
+      - USER_DATABASES=$PROVENDB_DB
+    command: ["/bin/bash", 
+                    "-c", 
+                    "chmod a+x /scripts/init.sh && /scripts/init.sh"
+      ]
+
+  tree:
+    image: asia.gcr.io/provendb/provendb-tree:$TAG_TREE 
+    healthcheck:
+      test: ["CMD-SHELL", "! grep -q ERROR tree.log  && netstat -an | grep ${PORT_TREE} > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s 
+    ports:
+      - ${PORT_TREE}
+    environment: 
+      - TREE_HOST_PORT=0.0.0.0:${PORT_TREE}
+      - TREE_ENV=dev
+      - mongoTargetDB=$PROVENDB_DB
+      - PORT_TREECACHE=${PORT_TREECACHE}
+      - PORT_MONGO=${PORT_MONGO}
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-tree
+        target: /scripts  
+    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]
+
+  proxy:
+    image: asia.gcr.io/provendb/provendb-proxy:$TAG_PROXY
+    hostname: proxy
+    env_file:
+      - env/common.env
+    environment:
+      - USER_DATABASES=$PROVENDB_DB
+      - ENV_PROVENDB_PROXY_PORT=${PORT_PROXY}
+      - ENV_PROVENDB_MONGO_AUTH_URI=mongodb://mongoauth:${PORT_MONGOAUTH}
+      - ENV_TREE_SERVICE_HOST=tree
+      - ENV_TREE_SERVICE_PORT=${PORT_TREE}
+      - PROXY_HOST=proxy
+      - PROXY_PORT=${PORT_PROXY}  
+      - PORT_MONGO=${PORT_MONGO}
+      - PROXY_LOG_LEVEL=INFO
+      - ENV_ANCHOR_SERVICE_HOST=anchor
+      - ENV_ANCHOR_SERVICE_PORT=${PORT_ANCHOR}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9091/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  
+    volumes:
+      - type: bind
+        source: ssl_cert
+        target: /ssl_cert
+    ports:
+      - "${PORT_PROXY}:${PORT_PROXY}"
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-proxy
+        target: /scripts    
+    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
+
+  anchor:
+    image: asia.gcr.io/provendb/provendb-anchor:$TAG_PROXY
+    hostname: anchor
+    env_file:
+      - env/common.env
+    environment:
+      - ANCHOR_HOST_PORT=0.0.0.0:${PORT_ANCHOR}
+      - ANCHOR_VERIFIER_HOST_PORT=0.0.0.0:${PORT_ANCHOR_VERIFIER}
+      - ANCHOR_VERIFIER_URI_PREFIX=http://localhost:${PORT_ANCHOR_VERIFIER}
+      - ANCHOR_ENV=dev
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -an | grep ${PORT_ANCHOR} > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s  
+    ports:
+      - "${PORT_ANCHOR}:${PORT_ANCHOR}"
+      - "${PORT_ANCHOR_VERIFIER}:${PORT_ANCHOR_VERIFIER}"
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-anchor
+        target: /scripts  
+    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
+
+
+volumes:
+  provendb-data:     

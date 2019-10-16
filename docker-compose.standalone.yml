@@ -1,0 +1,111 @@
+version: "3.7"
+services:
+  mongo:
+    container_name: mongo
+    restart: always
+    networks:
+      - provendb  
+    env_file:
+      - env/creds-standalone/root.env
+      - env/creds-standalone/provendb.env 
+
+  treecache:
+    restart: always
+    container_name: provendb-tree-cache
+    networks:
+      - provendb  
+    env_file:
+      - env/creds-standalone/root.env
+
+  concierge:
+    depends_on: 
+      - mongo
+    restart: on-failure
+    container_name: provendb-concierge
+    links:
+      - mongo
+    networks:
+      - provendb    
+    env_file:
+      - env/creds-standalone/provendb.env  
+
+  mongoauth:
+    restart: always
+    container_name: mongoauth
+    networks:
+      - provendb  
+    env_file:
+      - env/creds-standalone/provendb.env     
+
+  tree:
+    restart: always
+    depends_on: 
+      - treecache
+      - mongo
+      - concierge
+    container_name: provendb-tree
+    links:
+      - treecache
+      - mongo 
+      - concierge
+    networks:
+      - provendb    
+    env_file:
+      - env/creds-standalone/provendb.env
+      - env/creds-standalone/root.env
+
+  proxy:
+    restart: on-failure
+    depends_on: 
+      - mongo
+      - tree
+      - mongoauth
+      - concierge
+      - anchor
+    container_name: provendb-proxy
+    links:
+      - concierge
+      - mongo 
+      - tree
+      - mongoauth
+      - anchor
+    networks:
+      - provendb    
+    env_file:
+      - env/creds-standalone/provendb.env
+
+  anchor:
+    container_name: provendb-anchor
+    restart: always
+    networks:
+      - provendb  
+    env_file:
+      - env/creds-standalone/anchor.env     
+
+  # This is needed in standalone mode as heath checks will not automatically restart containers on failure
+  autoheal:
+    depends_on: 
+      - mongo
+      - tree
+      - mongoauth
+      - concierge
+      - proxy
+      - treecache
+      - anchor
+    image: willfarrell/autoheal
+    hostname: autoheal
+    restart: always
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    networks:
+      - provendb    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  
+
+networks:
+  provendb:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400      
+        
+   
