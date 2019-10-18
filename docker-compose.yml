@@ -140,7 +140,7 @@ services:
     entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
 
   anchor:
-    image: asia.gcr.io/provendb/provendb-anchor:$TAG_PROXY
+    image: asia.gcr.io/provendb/provendb-anchor:$TAG_ANCHOR
     hostname: anchor
     env_file:
       - env/common.env
