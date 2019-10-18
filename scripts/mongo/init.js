@@ -16,6 +16,8 @@ if(!(typeof(PROVENDB_DB) === 'undefined' || typeof(PROVENDB_USER) === 'undefined
     // while(rs.status().members.find(member => {return member.name === "mongo:27017"}).infoMessage !== ""){ }
     print("Current node is now set to primary")
 
+    db.getSiblingDB(PROVENDB_DB).runCommand({ createRole: 'superuser', privileges: [], roles: [] });
+
     db.getSiblingDB(PROVENDB_DB).createUser({user: PROVENDB_USER, 
                                             pwd: PROVENDB_PASS, 
                                             roles:[{role: 'readWrite',
