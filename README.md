@@ -1,6 +1,6 @@
-# Dockerized versions of ProvenDB
+# Dockerized version of ProvenDB
 
-## 1. Quick start to starting ProvenDB (standalone container)
+## Quick start to starting ProvenDB (standalone container)
 
 ```
 
@@ -19,6 +19,7 @@ mongo mongodb://pdbuser:click123@localhost:27018/provendb
 ```
 Please set the appropriate configuration values in `env/creds-standalone/provendb.env` file
 
+For more information on interacting with ProvenDB, please refer https://provendb.readme.io/docs/provendb-quickstart-tutorial
 
 # Errors and Debugging
 
@@ -29,7 +30,7 @@ docker rmi $(docker images -q -f "dangling=true")
 docker volume rm $(docker volume ls -qf dangling=true)
 ```
 
-2. The Blockcypher token included in this repo is `62067971acd84dbf83d97739541ca77b`. This is a free token with a api limit of 200 calls per day. If you need more, you can create a account here https://accounts.blockcypher.com/, choose a plan and replace this token with your own token.
+2. The Blockcypher token included in this repo is `62067971acd84dbf83d97739541ca77b`. This is a free token with a api limit of 200 calls per day and is shared among all running public docker instances of ProvenDB. If you need more, you can create a account here https://accounts.blockcypher.com/, choose a plan and replace this token with your own token.
 
 3. It's not possible to change existing passwords once provendb is started. If you want to change passwords, you will have to delete the MongoDB database.
 You can do this for e.g.
