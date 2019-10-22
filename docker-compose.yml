@@ -43,7 +43,7 @@ services:
     command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "${PORT_TREECACHE}"]
 
   concierge:
-    image: asia.gcr.io/provendb/provendb-concierge:$TAG_CONCIERGE
+    image: $DOCKER_REPO_CONCIERGE:$TAG_CONCIERGE
     ports:
       - ${PORT_CONCIERGE}
     environment:
@@ -83,7 +83,7 @@ services:
       ]
 
   tree:
-    image: asia.gcr.io/provendb/provendb-tree:$TAG_TREE 
+    image: $DOCKER_REPO_TREE:$TAG_TREE 
     healthcheck:
       test: ["CMD-SHELL", "! grep -q ERROR tree.log  && netstat -an | grep ${PORT_TREE} > /dev/null || exit 1"]
       interval: 30s
@@ -105,7 +105,7 @@ services:
     entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]
 
   proxy:
-    image: asia.gcr.io/provendb/provendb-proxy:$TAG_PROXY
+    image: $DOCKER_REPO_PROXY:$TAG_PROXY
     hostname: proxy
     env_file:
       - env/common.env
@@ -140,7 +140,7 @@ services:
     entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
 
   anchor:
-    image: asia.gcr.io/provendb/provendb-anchor:$TAG_ANCHOR
+    image: $DOCKER_REPO_ANCHOR:$TAG_ANCHOR
     hostname: anchor
     env_file:
       - env/common.env
