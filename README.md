@@ -39,3 +39,4 @@ docker volume rm provendb-data
 
 NOTE: 
 1. This proxy runs with ssl disabled. If you want to use ssl, you will need to place you certificate in `.p12` format in `ssl_cert/Cert.p12` and set `ENV_PROVENDB_SECURITY_SSL_ENABLE=true` in `common.env` file.
+2. Anchoring to Ethereum is done on the `Rinkeby` testnet. You can change the endpoint and the private key in `env/creds-standalone/anchor.env`. A free endpoint to mainnet/testnet can be obtained by signing up on https://infura.io
