@@ -127,16 +127,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 120s  
-    volumes:
-      - type: bind
-        source: ssl_cert
-        target: /ssl_cert
     ports:
       - "${PORT_PROXY}:${PORT_PROXY}"
     volumes: 
       - type: bind
         source: ./scripts/provendb-proxy
         target: /scripts    
+      - type: bind
+        source: ./ssl_cert
+        target: /ssl_cert  
     entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
 
   anchor:
