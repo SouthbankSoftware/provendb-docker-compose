@@ -48,7 +48,9 @@ You can do this for e.g.
 docker volume rm provendb-data
 ```
 
-# Tested on the following
+# Compatibility
+
+Tested on the following:
 
 | OS        | Docker version           | 
 | ------------- |:-------------:| 
