@@ -26,7 +26,7 @@ Please set the appropriate configuration values in `env/creds-standalone/provend
 
 # Errors and Debugging
 
-1. If you get an error like 'no space left on device` on any of the container logs, you may try and run this
+1. If you get an error like `no space left on device` on any of the container logs, you may try and run this
 ```
 docker rm $(docker ps -q -f 'status=exited')
 docker rmi $(docker images -q -f "dangling=true")
@@ -63,5 +63,9 @@ NOTE:
 1. This proxy runs with ssl disabled. If you want to use ssl, you will need to place you certificate in `.p12` format in `ssl_cert/certificate.p12` and set `ENV_PROVENDB_SECURITY_SSL_ENABLE=true` in `common.env` file.
 2. Anchoring to Ethereum is done on the `Rinkeby` testnet. You can change the endpoint and the private key in `env/creds-standalone/anchor.env`. A free endpoint to mainnet/testnet can be obtained by signing up on https://infura.io
 
+# Contact
+
+In case of any issue, please contact developer@southbanksoftware.com
+
 # 
-Copyright © 2019 Southbank Software. All rights reserved. 
+Copyright © 2019 Southbank Software. All rights reserved.
