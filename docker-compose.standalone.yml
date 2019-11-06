@@ -1,3 +1,5 @@
+# Copyright © 2019 Southbank Software. All rights reserved. 
+# --------------------------------------------------------
 version: "3.7"
 services:
   mongo:
