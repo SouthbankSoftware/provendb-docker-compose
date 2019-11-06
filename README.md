@@ -67,5 +67,5 @@ NOTE:
 
 In case of any issue, please contact developer@southbanksoftware.com
 
-___
+# 
 Copyright © 2019 Southbank Software. All rights reserved.
