@@ -1,26 +1,4 @@
 # Copyright © 2019 Southbank Software. All rights reserved. 
-
-# Southbank Software provides this Software for non-commercial purposes only.  By installing or running this Software, 
-# you acknowledge and agree that you have read the terms of this Agreement and agree to be legally bound to them. 
-
-# This Agreement describes the licensing of the Software on a non-commercial basis.
-
-# If User desires to use the Software on a commercial basis, it must separately purchase a commercial-use license from Southbank Software.
- 
-# Subject to the other terms of this Agreement, Southbank Software  grants you a three-month free-of-charge, 
-# non-exclusive, non-transferable, non-commercial license to use the Software for non-commercial, 
-# evaluation purposes in User’s internal business operations
-
-# By installing or running this Software, you agree: 
-
-# * Not to use this Software in any type of  service or outsourcing environment 
-#   where the functionality of the Software is provided to a third party;
-# * Not to perform reverse engineering, decompiling, disassembly, or translation of the 
-#   Software to discover the source code
-# * Not to evaluate the Software with the  purpose of competing with Southbank Software
-
-# Southbank Software reserves all rights not expressly granted.
-
 # --------------------------------------------------------
 version: "3.7"
 services:
