@@ -128,7 +128,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 120s  
+      start_period: 500s  
     ports:
       - "${PORT_PROXY}:${PORT_PROXY}"
     volumes: 
