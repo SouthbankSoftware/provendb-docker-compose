@@ -33,7 +33,8 @@ For instance, if you would like to use a private blockchain like Quorum, you nee
     i. `ANCHOR_ETH_ENDPOINT` in `env/creds-standalone/anchor.env` to point to the Quorum node and 
 
     ii. Set `ANCHOR_ETH_PRIVATE_KEY` to the value of the private key of the account address which will be used for signing transactions
-A free endpoint to mainnet/testnet on the public Ethereum blockchain can be obtained by signing up on https://infura.io
+
+    A free endpoint to mainnet/testnet on the public Ethereum blockchain can be obtained by signing up on https://infura.io
 
 # Errors and Debugging
 
@@ -74,9 +75,9 @@ Works well with 8GB of memory available for Docker Engine
 # Branch Information
 
 This repo has the following branches:
-1. *dev*: Contains the latest versions of ProvenDB services. These might not be 100% bugfree
-2. *pre-release*: Contains versions of ProvenDB services which are not marked as `stable` yet, but have passed the nightly tests and most likely will be marked as `stable`
-3. *master*: Contains `stable` versions of all ProvenDB services.
+1. **dev**: Contains the latest versions of ProvenDB services. These might not be 100% bugfree
+2. **pre-release**: Contains versions of ProvenDB services which are not marked as `stable` yet, but have passed the nightly tests and most likely will be marked as `stable`
+3. **master**: Contains `stable` versions of all ProvenDB services.
 
 # Contact
 
