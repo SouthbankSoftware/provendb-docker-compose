@@ -1,6 +1,6 @@
 # Copyright © 2019 Southbank Software. All rights reserved. 
 # --------------------------------------------------------
-version: "3.7"
+version: "3.4"
 services: 
   mongo:
     image: mongo:$TAG_MONGO
@@ -128,7 +128,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 500s  
+      start_period: 300s  
     ports:
       - "${PORT_PROXY}:${PORT_PROXY}"
     volumes: 

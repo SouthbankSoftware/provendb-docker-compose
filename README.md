@@ -2,6 +2,8 @@
 
 ## 1. Quick start to starting ProvenDB (standalone container)
 
+[![](thumbnail.jpg)](https://youtu.be/7yGjJ9Bfb44)
+
 On Unix-like:
 ```
 docker-compose pull && docker-compose -f docker-compose.yml -f docker-compose.standalone.yml up --build -d
@@ -23,6 +25,15 @@ mongo mongodb://pdbuser:click123@localhost:27018/provendb
 ```
 Please set the appropriate configuration values in `env/creds-standalone/provendb.env` file
 
+# Configuration: 
+1. This proxy runs with ssl disabled. If you want to use ssl, you will need to place you certificate in `.p12` format in `ssl_cert/certificate.p12` and set `ENV_PROVENDB_SECURITY_SSL_ENABLE=true` in `common.env` file.
+2. Anchoring to Ethereum is done on the `Rinkeby` testnet by default. You can change this configuration. 
+For instance, if you would like to use a private blockchain like Quorum, you need to set 
+
+    i. `ANCHOR_ETH_ENDPOINT` in `env/creds-standalone/anchor.env` to point to the Quorum node and 
+
+    ii. Set `ANCHOR_ETH_PRIVATE_KEY` to the value of the private key of the account address which will be used for signing transactions
+A free endpoint to mainnet/testnet on the public Ethereum blockchain can be obtained by signing up on https://infura.io
 
 # Errors and Debugging
 
@@ -38,14 +49,14 @@ docker volume rm $(docker volume ls -qf dangling=true)
 ERROR: for provendb-tree-cache  Cannot create container for service treecache: b'Drive sharing failed for an unknown reason'
 ```
 
-Please refer to this https://github.com/docker/for-win/issues/3174#issuecomment-477417558
+    Please refer to this https://github.com/docker/for-win/issues/3174#issuecomment-477417558
 
 3. The Blockcypher token included in this repo is `62067971acd84dbf83d97739541ca77b`. This is a free token with a api limit of 200 calls per day and is shared among all running public docker instances of ProvenDB. If you need more, you can create a account here https://accounts.blockcypher.com/, choose a plan and replace this token with your own token.
 
 4. It's not possible to change existing passwords once provendb is started. If you want to change passwords, you will have to delete the MongoDB database.
 You can do this for e.g.
 ```
-docker volume rm provendb-data
+docker volume rm $(docker volume ls -q | grep provendb-data)
 ```
 
 # Compatibility
@@ -54,14 +65,18 @@ Tested on the following:
 
 | OS        | Docker version           | 
 | ------------- |:-------------:| 
-| macOS Catalina     | Docker Desktop: 2.1.0.1, Docker Engine: 19.03.1 | 
-| Windows 10 Pro      | Docker Desktop: 2.1.0.4, Docker Engine: 19.03.4 | 
+| macOS Catalina     | Docker Desktop: 2.1.0.1, Docker Engine: 19.03.1, Docker Compose: 3.4| 
+| Windows 10 Pro      | Docker Desktop: 2.1.0.4, Docker Engine: 19.03.4| 
+| Ubuntu 18.04 Server | Docker Engine: 18.09.7, Docker Compose: 3.4| 
 
 Works well with 8GB of memory available for Docker Engine
 
-NOTE: 
-1. This proxy runs with ssl disabled. If you want to use ssl, you will need to place you certificate in `.p12` format in `ssl_cert/certificate.p12` and set `ENV_PROVENDB_SECURITY_SSL_ENABLE=true` in `common.env` file.
-2. Anchoring to Ethereum is done on the `Rinkeby` testnet. You can change the endpoint and the private key in `env/creds-standalone/anchor.env`. A free endpoint to mainnet/testnet can be obtained by signing up on https://infura.io
+# Branch Information
+
+This repo has the following branches:
+1. *dev*: Contains the latest versions of ProvenDB services. These might not be 100% bugfree
+2. *pre-release*: Contains versions of ProvenDB services which are not marked as `stable` yet, but have passed the nightly tests and most likely will be marked as `stable`
+3. *master*: Contains `stable` versions of all ProvenDB services.
 
 # Contact
 
