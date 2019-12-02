@@ -18,7 +18,7 @@ A Docker-Compose configuration for deploying [ProvenDB](https://provendb.com) on
   - [Table of Contents](#table-of-contents)
   - [Prerequisities](#prerequisities)
   - [Quick Start Guide](#quick-start-guide)
-    - [1. Clone the Repositry](#1-clone-the-repositry)
+    - [1. Clone the Repository](#1-clone-the-repository)
     - [2. Navigate to the root directory of the repository.](#2-navigate-to-the-root-directory-of-the-repository)
     - [3. Ensure Docker images are up to date (run this regularly to get the latest features and bug fixes).](#3-ensure-docker-images-are-up-to-date-run-this-regularly-to-get-the-latest-features-and-bug-fixes)
     - [4. Run the Docker containers.](#4-run-the-docker-containers)
@@ -49,7 +49,7 @@ Either watch the video below, or follow the written steps to get started with Pr
 
 [![](thumbnail.jpg)](https://youtu.be/7yGjJ9Bfb44)
 
-### 1. Clone the Repositry
+### 1. Clone the Repository
 
 ```sh
 git clone https://github.com/SouthbankSoftware/provendb-docker-compose.git
