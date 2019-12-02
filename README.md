@@ -23,7 +23,8 @@ Then you can connect to ProvenDB (proxy service) in the following manner:
 ```
 mongo mongodb://pdbuser:click123@localhost:27018/provendb
 ```
-Please set the appropriate configuration values in `env/creds-standalone/provendb.env` file
+ProvenDB configuration file is located here `env/creds-standalone/provendb.env`. 
+All blockchain anchoring related configuration can be changed from `env/creds-standalone/anchor.env`. See the [Configuration](#Configuration) section below for more details.
 
 # Configuration: 
 1. This proxy runs with ssl disabled. If you want to use ssl, you will need to place you certificate in `.p12` format in `ssl_cert/certificate.p12` and set `ENV_PROVENDB_SECURITY_SSL_ENABLE=true` in `common.env` file.
