@@ -170,7 +170,7 @@ services:
     environment:
       - ANCHOR_HOST_PORT=0.0.0.0:${PORT_ANCHOR}
       - ANCHOR_VERIFIER_HOST_PORT=0.0.0.0:${PORT_ANCHOR_VERIFIER}
-      - ANCHOR_VERIFIER_URI_PREFIX=http://localhost:${PORT_ANCHOR_VERIFIER}
+      - ANCHOR_VERIFIER_URI_PREFIX=http://anchor:${PORT_ANCHOR_VERIFIER}
       - ANCHOR_ENV=dev
     healthcheck:
       test: ["CMD-SHELL", "netstat -an | grep ${PORT_ANCHOR} > /dev/null || exit 1"]
