@@ -43,7 +43,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s  
+      start_period: 600s  
     command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "${PORT_MONGO}"]
 
   treecache:
@@ -113,7 +113,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 120s 
+      start_period: 600s 
     ports:
       - ${PORT_TREE}
     environment: 
@@ -150,7 +150,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 300s  
+      start_period: 600s  
     ports:
       - "${PORT_PROXY}:${PORT_PROXY}"
     volumes: 
@@ -170,7 +170,7 @@ services:
     environment:
       - ANCHOR_HOST_PORT=0.0.0.0:${PORT_ANCHOR}
       - ANCHOR_VERIFIER_HOST_PORT=0.0.0.0:${PORT_ANCHOR_VERIFIER}
-      - ANCHOR_VERIFIER_URI_PREFIX=http://localhost:${PORT_ANCHOR_VERIFIER}
+      - ANCHOR_VERIFIER_URI_PREFIX=http://anchor:${PORT_ANCHOR_VERIFIER}
       - ANCHOR_ENV=dev
     healthcheck:
       test: ["CMD-SHELL", "netstat -an | grep ${PORT_ANCHOR} > /dev/null || exit 1"]
