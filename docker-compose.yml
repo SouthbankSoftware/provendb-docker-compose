@@ -145,6 +145,7 @@ services:
       - PROXY_LOG_LEVEL=INFO
       - ENV_ANCHOR_SERVICE_HOST=anchor
       - ENV_ANCHOR_SERVICE_PORT=${PORT_ANCHOR}
+      - ENV_PROVENDB_PROXY_CHAINPOINT_NODES=${CHAINPOINT_NODE}
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9091/ready || exit 1"]
       interval: 30s
