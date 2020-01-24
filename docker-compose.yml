@@ -123,6 +123,7 @@ services:
       - PORT_TREECACHE=${PORT_TREECACHE}
       - PORT_MONGO=${PORT_MONGO}
       - TREE_IGNOREDCOLLECTIONS=${PROVENDB_IGNORE_COLLECTIONS}
+      - PORT_TREE=${PORT_TREE}
     volumes: 
       - type: bind
         source: ./scripts/provendb-tree
