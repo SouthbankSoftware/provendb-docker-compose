@@ -20,5 +20,7 @@ file_env() {
 
 file_env "ANCHOR_ETH_ENDPOINT"
 file_env "ANCHOR_ETH_PRIVATE_KEY"
+file_env "ANCHOR_ETH_MAINNET_ENDPOINT"
+file_env "ANCHOR_ETH_MAINNET_PRIVATE_KEY"
 
 anchor
