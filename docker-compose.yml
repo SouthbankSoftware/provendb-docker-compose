@@ -173,11 +173,6 @@ services:
       - ANCHOR_VERIFIER_HOST_PORT=0.0.0.0:${PORT_ANCHOR_VERIFIER}
       - ANCHOR_VERIFIER_URI_PREFIX=http://anchor:${PORT_ANCHOR_VERIFIER}
       - ANCHOR_ENV=dev
-      - ANCHOR_ETH_MAINNET_ENABLED=true
-      - ANCHOR_ETH_ENABLED=true
-      - ANCHOR_ETH_MAINNET_BATCH_SIZE=32768
-      - ANCHOR_ETH_MAINNET_BATCH_TIME=5m
-      - ANCHOR_ETH_MAINNET_BATCH_TTL=12h
     healthcheck:
       test: ["CMD-SHELL", "netstat -an | grep ${PORT_ANCHOR} > /dev/null || exit 1"]
       interval: 30s
