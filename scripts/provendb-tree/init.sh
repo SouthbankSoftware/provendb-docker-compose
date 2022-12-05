@@ -36,6 +36,8 @@ until mongo mongodb://$PROVENDB_USER:$PROVENDB_PASS@mongo:$PORT_MONGO/$mongoTarg
   done
 echo "Authentication to MongoDB successful"  
 
+# Wait for additional 5 seconds so that there is enough time for concierge to initialize schema
+sleep 5s
 
 TREE_CACHE_DB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@treecache:$PORT_TREECACHE \
 PROVENDB_VERIFY_BCTOKEN=$BLOCKCYPHER_TOKEN \

@@ -122,6 +122,8 @@ services:
       - mongoTargetDB=$PROVENDB_DB
       - PORT_TREECACHE=${PORT_TREECACHE}
       - PORT_MONGO=${PORT_MONGO}
+      - TREE_IGNOREDCOLLECTIONS=${PROVENDB_IGNORE_COLLECTIONS}
+      - PORT_TREE=${PORT_TREE}
     volumes: 
       - type: bind
         source: ./scripts/provendb-tree
@@ -146,6 +148,8 @@ services:
       - ENV_ANCHOR_SERVICE_HOST=anchor
       - ENV_ANCHOR_SERVICE_PORT=${PORT_ANCHOR}
       - ENV_PROVENDB_PROXY_CHAINPOINT_NODES=${CHAINPOINT_NODE}
+      - ENV_PROVENDB_PROXY_IGNORE_COLLECTIONS=${PROVENDB_IGNORE_COLLECTIONS}
+
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9091/ready || exit 1"]
       interval: 30s
@@ -173,6 +177,11 @@ services:
       - ANCHOR_VERIFIER_HOST_PORT=0.0.0.0:${PORT_ANCHOR_VERIFIER}
       - ANCHOR_VERIFIER_URI_PREFIX=http://anchor:${PORT_ANCHOR_VERIFIER}
       - ANCHOR_ENV=dev
+      - ANCHOR_ETH_MAINNET_ENABLED=true
+      - ANCHOR_ETH_ENABLED=true
+      - ANCHOR_ETH_MAINNET_BATCH_SIZE=32768
+      - ANCHOR_ETH_MAINNET_BATCH_TIME=5m
+      - ANCHOR_ETH_MAINNET_BATCH_TTL=12h
     healthcheck:
       test: ["CMD-SHELL", "netstat -an | grep ${PORT_ANCHOR} > /dev/null || exit 1"]
       interval: 30s
