@@ -73,6 +73,7 @@ services:
     environment:
       - PROVENDB_DB=$PROVENDB_DB  
       - PORT_MONGO=${PORT_MONGO}    
+      - HOST_MONGO=${HOST_MONGO}
     volumes: 
       - type: bind
         source: ./scripts/provendb-concierge

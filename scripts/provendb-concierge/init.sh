@@ -22,9 +22,10 @@ file_env() {
 file_env "PROVENDB_USER"
 file_env "PROVENDB_PASS"
 
+echo "HOST_MONGO: ${HOST_MONGO} PORT_MONGO: ${PORT_MONGO}"
 while :
 do
-    a=$(concierge schema --uri mongodb://${PROVENDB_USER}:${PROVENDB_PASS}@mongo:${PORT_MONGO}/${PROVENDB_DB} 2>&1)
+    a=$(concierge schema --uri mongodb://${PROVENDB_USER}:${PROVENDB_PASS}@${HOST_MONGO}:${PORT_MONGO}/${PROVENDB_DB} 2>&1)
     if [[ "$a" == *"successfully initialized schema for database \`${PROVENDB_DB}\`" ]]; then
         echo "Schema successfully initialized.. Just going to hang around."
     elif [[ "$a" == *"Error: failed to init collection \`_${PROVENDB_DB}_"*"(NamespaceExists) a collection '${PROVENDB_DB}._"*"already exists"* ]]; then
