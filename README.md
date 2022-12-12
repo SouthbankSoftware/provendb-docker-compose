@@ -62,13 +62,17 @@ git clone https://github.com/SouthbankSoftware/provendb-docker-compose.git
 cd provendb-docker-compose
 ```
 
-### 3. Ensure Docker images are up to date (run this regularly to get the latest features and bug fixes).
+### 3. Copy `sample.env` to `.env` and edit as appropriate
+
+You might also need to edit the files in `env/creds-standalone`. Particularly `anchor.env` which has the blockchain keys
+
+### 4. Ensure Docker images are up to date (run this regularly to get the latest features and bug fixes).
 
 ```sh
 docker-compose pull
 ```
 
-### 4. Run the Docker containers.
+### 5. Run the Docker containers.
 
 _On Unix operating systems:_
 
@@ -82,7 +86,7 @@ _On Windows operating systems:_
 sed -i 's/\r$//' scripts/*/*.sh && docker-compose pull && docker-compose -f docker-compose.yml -f docker-compose.standalone.yml up --build -d
 ```
 
-### 5. Check container status
+### 6. Check container status
 
 ```
 docker ps
@@ -90,16 +94,21 @@ docker ps
 
 _All the containers should be healthy_
 
-### 6. Connect to ProvenDB.
+### 7. Connect to ProvenDB.
 
 ```sh
 mongo mongodb://pdbuser:click123@localhost:27018/provendb
 ```
 
-### 7. Next Steps
+### 8. Next Steps
 
 - _Customize your configuration by modifying the `env/creds-standalone/provendb.env` file._
 - _Complete the database tutorial [here](https://provendb.readme.io/docs/provendb-quickstart-tutorial)._
+
+### Other notes
+
+The script `provendb-docker.sh` automates many of the start/stop and reset operations.
+The script `provendbShell.sh` is a shell helper wrapper around the mongo command - see [https://provendb.readme.io/docs/shell-helper-commands](https://provendb.readme.io/docs/shell-helper-commands)
 
 # Configuration
 
@@ -118,7 +127,8 @@ mongo mongodb://pdbuser:click123@localhost:27018/provendb
 
 If you want to use a MongoDB server outside of Docker (for HA and long term persistence reasons) you need to do the following:
 
-1. Change the PORT_MONGO variable in .env to point to the host of the server.  The default value of `mongo` points just to the internal MongODB
+1. Change the URI_MONGO variable in .env to point to the host of the server.  The default value of points to a mongodb insstance created inside of docker. 
+
 2. In that DB, make sure that an empty database exists that can be accessed using URI_MONGO from the `.env` file.  This database will be initialized with the appropriate schemas if they are not already there.
 
 These commands are suitable for the defaults: 
@@ -137,9 +147,9 @@ db.getSiblingDB("provendb").createUser({
      {  w: "majority" }
  );
 ```
-The hostname must be reachable from within the docker container. 
+The hostname must be reachable from within the docker container.  This is where things typically go wrong:  `localhost` URIs cannot be used. 
 
-3.  Make sure that the `URI_MONGO` variable is consistent with the   `PROVENDB_USER` and `PROVENDB_PASS` and `PROVENDB_DB` settings in the various environmant files.  Safest path is to use `pdbroot`, `click123` and `provendb`, at least for testing. 
+3.  Make sure that the `URI_MONGO` variable is consistent with the   `PROVENDB_USER` and `PROVENDB_PASS` and `PROVENDB_DB` settings in the various environmant files.  Safest path is to use `pdbuser`, `click123` and `provendb`, at least for testing. 
 
 
 
@@ -196,11 +206,10 @@ This deloyment works best with **8GB** of memory available for Docker Engine.
 This repository contains the following branches:
 
 1. **dev**: Contains the latest versions of the ProvenDB services. These is cuttent edge code, and may not yet be 100% bug free.
-2. **pre-release**: Contains versions of ProvenDB services which are not marked as `stable` yet, but have passed the nightly tests and most likely will be marked as `stable` soon.
-3. **master**: Contains `stable` versions of all ProvenDB services.
+2. **master**: Contains `stable` versions of all ProvenDB services.
 
 # Contact
 
 If you run into any issues, or wish to discuss a custom deployment of ProvenDB for your blockchain project, please email us at **support@southbanksoftware.com**
 
-_Copyright © 2019 Southbank Software. All rights reserved._
+_Copyright © 2022 Southbank Software. All rights reserved._
