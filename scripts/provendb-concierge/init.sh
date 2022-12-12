@@ -22,19 +22,20 @@ file_env() {
 file_env "PROVENDB_USER"
 file_env "PROVENDB_PASS"
 
-echo "HOST_MONGO: ${HOST_MONGO} PORT_MONGO: ${PORT_MONGO}"
+echo "concierge schema --uri ${URI_MONGO}"
 while :
 do
-    a=$(concierge schema --uri mongodb://${PROVENDB_USER}:${PROVENDB_PASS}@${HOST_MONGO}:${PORT_MONGO}/${PROVENDB_DB} 2>&1)
-    if [[ "$a" == *"successfully initialized schema for database \`${PROVENDB_DB}\`" ]]; then
+    a=$(concierge schema --uri ${URI_MONGO} 2>&1)
+	echo $a
+    if [[ "$a" == *"successfully initialized schema for database "* ]]; then
         echo "Schema successfully initialized.. Just going to hang around."
-    elif [[ "$a" == *"Error: failed to init collection \`_${PROVENDB_DB}_"*"(NamespaceExists) a collection '${PROVENDB_DB}._"*"already exists"* ]]; then
+    elif [[ "$a" == *"Error: failed to init collection "*"(NamespaceExists) a collection '"*"already exists"* ]]; then
         echo "Init Collection already exists, just going to hang around."
     else
         echo "The following error occurred"
         echo $a
         echo "Now quitting. Docker will automatically retry."
-        sleep 5
+        sleep 600
         exit 1
     fi
     break;

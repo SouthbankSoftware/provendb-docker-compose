@@ -26,6 +26,7 @@ A Docker-Compose configuration for deploying [ProvenDB](https://provendb.com) on
     - [6. Connect to ProvenDB.](#6-connect-to-provendb)
     - [7. Next Steps](#7-next-steps)
 - [Configuration](#configuration)
+- [Using an external MongoDB](#Using-an-external-MongoDB-Server)
 - [Troubleshooting](#troubleshooting)
     - [**No Space Left on Device** in container logs.](#no-space-left-on-device-in-container-logs)
     - [**Drive sharing failed for an unknown reason** error on Windows](#drive-sharing-failed-for-an-unknown-reason-error-on-windows)
@@ -112,6 +113,35 @@ mongo mongodb://pdbuser:click123@localhost:27018/provendb
         2. Set `ANCHOR_ETH_PRIVATE_KEY` to the value of the private key of the account address which will be used for signing transactions.
 
   A free endpoint for anchoring transactions on the [Ethereum](https://www.google.com/search?q=ethereum&oq=ethereum&aqs=chrome..69i57j69i59j69i60l2j69i65j69i61.888j0j7&sourceid=chrome&ie=UTF-8) mainnet or testnet can be obtained from [Infura.io](https://infura.io/).
+
+# Using an external MongoDB Server
+
+If you want to use a MongoDB server outside of Docker (for HA and long term persistence reasons) you need to do the following:
+
+1. Change the PORT_MONGO variable in .env to point to the host of the server.  The default value of `mongo` points just to the internal MongODB
+2. In that DB, make sure that an empty database exists that can be accessed using URI_MONGO from the `.env` file.  This database will be initialized with the appropriate schemas if they are not already there.
+
+These commands are suitable for the defaults: 
+
+```javascript
+use provendb;
+db.dummy_pdbignore.insertOne({});
+
+db.getSiblingDB("provendb").createUser({
+    user: "pdbuser",
+    pwd: "click123", 
+      roles: [ 
+              {role:"readWrite", db: "provendb" }     
+             ]
+     },
+     {  w: "majority" }
+ );
+```
+The hostname must be reachable from within the docker container. 
+
+3.  Make sure that the `URI_MONGO` variable is consistent with the   `PROVENDB_USER` and `PROVENDB_PASS` and `PROVENDB_DB` settings in the various environmant files.  Safest path is to use `pdbroot`, `click123` and `provendb`, at least for testing. 
+
+
 
 # Troubleshooting
 
