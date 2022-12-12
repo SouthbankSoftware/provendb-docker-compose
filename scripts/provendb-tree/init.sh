@@ -29,7 +29,8 @@ apk update
 apk add mongodb=4.0.5-r0
 
 echo "Wating until MongoDB is ready..."
-until mongo mongodb://$PROVENDB_USER:$PROVENDB_PASS@mongo:$PORT_MONGO/$mongoTargetDB --quiet  --eval "db.runCommand({\"ping\" : 1})" > /dev/null
+echo "URI_MONGO=${URI_MONGO}"
+until mongo ${URI_MONGO} --quiet  --eval "db.runCommand({\"ping\" : 1})" > /dev/null
   do
 	echo "Mongo DB not ready yet. Trying again in 5 seconds."
     sleep 5s
@@ -41,7 +42,7 @@ sleep 5s
 
 TREE_CACHE_DB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@treecache:$PORT_TREECACHE \
 PROVENDB_VERIFY_BCTOKEN=$BLOCKCYPHER_TOKEN \
-mongoUri=mongodb://$PROVENDB_USER:$PROVENDB_PASS@mongo:$PORT_MONGO/$mongoTargetDB \
+mongoUri=${URI_MONGO} \
 TREE_DISABLE_OPENTRACING=true \
 ./tree &> tree.log &
 tail -f tree.log

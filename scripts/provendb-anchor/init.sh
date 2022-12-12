@@ -23,5 +23,6 @@ file_env "ANCHOR_ETH_PRIVATE_KEY"
 file_env "ANCHOR_ETH_MAINNET_ENDPOINT"
 file_env "ANCHOR_ETH_MAINNET_PRIVATE_KEY"
 
+echo "$ANCHOR_ETH_ENDPOINT .  $ANCHOR_ETH_PRIVATE_KEY  . $ANCHOR_ETH_MAINNET_ENDPOINT . $ANCHOR_ETH_MAINNET_PRIVATE_KEY"
 #anchor --eth.zero-gas-price.enabled=true  --auth-enabled=false
 anchor

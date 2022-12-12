@@ -24,13 +24,15 @@ file_env "BLOCKCYPHER_TOKEN"
 
 apk add curl mongodb # this is for the health check
 echo "Wating until MongoDB is ready..."
-until mongo mongodb://$PROVENDB_USER:$PROVENDB_PASS@mongo:$PORT_MONGO/$USER_DATABASES --quiet  --eval "db.runCommand({\"ping\" : 1})" > /dev/null
+echo "URI_MONGO=${URI_MONGO}"
+ 
+until mongo ${URI_MONGO} --quiet  --eval "db.runCommand({\"ping\" : 1})" > /dev/null
   do
 	echo "Mongo DB not ready yet. Trying again in 5 seconds."
     sleep 5s
   done
 echo "Authentication to MongoDB successful"  
 
-ENV_PROVENDB_MONGO_URI=mongodb://$PROVENDB_USER:$PROVENDB_PASS@mongo:$PORT_MONGO/$USER_DATABASES?replicaSet=rs0 \
+ENV_PROVENDB_MONGO_URI=${URI_MONGO} \
 /app/proxy-server.sh
 
