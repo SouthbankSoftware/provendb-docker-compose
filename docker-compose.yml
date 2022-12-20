@@ -8,15 +8,8 @@ services:
     networks:
       - provendb
     hostname: mongo
-    # environment:
-    # - RS_HOST=mongo:${PORT_MONGO}
-    # - PROVENDB_DB=$PROVENDB_DB 
-    # - MONGODB_PORT=${PORT_MONGO}
     volumes: 
       - ${PROVENDB_PROXY_MONGO_DATA_MOUNT}:/data/db
-      - type: bind
-        source: ./scripts/mongo
-        target: /docker-entrypoint-initdb.d/
     ports: 
       - ${PROVENDB_PROXY_MONGO_EXPOSE_PORT}:27017
     # healthcheck:
@@ -24,8 +17,24 @@ services:
     #   interval: 30s
     #   timeout: 10s
     #   retries: 3
-    #   start_period: 600s  
+    #   start_period: 600s
     command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "27017"]
+
+  # This container performs all initializations. Changes to init scripts are made in the
+  # /scripts/init.sh file. 
+  init:
+    image: ${PROVENDB_PROXY_MONGO_IMAGE}
+    container_name: mongoinit
+    depends_on:
+      - mongo
+    restart: "no"
+    networks:
+      - provendb
+    volumes:
+      - type: bind
+        source: ./scripts
+        target: /scripts
+    entrypoint: [ "bash", "/scripts/init.sh"]      
 
 # This network is used for communication between containers.
 networks:

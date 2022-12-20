@@ -1,4 +1,5 @@
 // We first initiate the replica.
+print("INITIATING REPLICA SET")
 rs.initiate({
     _id: 'rs0',
     members: [
