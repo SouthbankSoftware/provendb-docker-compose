@@ -1,0 +1,201 @@
+# Copyright © 2019 Southbank Software. All rights reserved. 
+
+# Southbank Software provides this Software for non-commercial purposes only.  By installing or running this Software, 
+# you acknowledge and agree that you have read the terms of this Agreement and agree to be legally bound to them. 
+
+# This Agreement describes the licensing of the Software on a non-commercial basis.
+
+# If User desires to use the Software on a commercial basis, it must separately purchase a commercial-use license from Southbank Software.
+ 
+# Subject to the other terms of this Agreement, Southbank Software  grants you a three-month free-of-charge, 
+# non-exclusive, non-transferable, non-commercial license to use the Software for non-commercial, 
+# evaluation purposes in User’s internal business operations
+
+# By installing or running this Software, you agree: 
+
+# * Not to use this Software in any type of  service or outsourcing environment 
+#   where the functionality of the Software is provided to a third party;
+# * Not to perform reverse engineering, decompiling, disassembly, or translation of the 
+#   Software to discover the source code
+# * Not to evaluate the Software with the  purpose of competing with Southbank Software
+
+# Southbank Software reserves all rights not expressly granted.
+
+# --------------------------------------------------------
+version: "3.4"
+services: 
+  mongo:
+    image: mongo:$TAG_MONGO
+    hostname: mongo
+    environment:
+      - RS_HOST=mongo:${PORT_MONGO}
+      - PROVENDB_DB=$PROVENDB_DB 
+      - MONGODB_PORT=${PORT_MONGO}
+    volumes: 
+      - provendb-data:/data/db
+      - type: bind
+        source: ./scripts/mongo
+        target: /docker-entrypoint-initdb.d/
+    ports: 
+      - ${EXTERNAL_PORT_MONGO}:${PORT_MONGO}
+    healthcheck:
+      test: ["CMD-SHELL", "mongo -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD  --port $$MONGODB_PORT --eval 'typeof rs.status().members[0] === \"undefined\" ? quit(1) : quit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s  
+    command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "${PORT_MONGO}"]
+
+  treecache:
+    image: mongo:$TAG_MONGO
+    hostname: treecache
+    environment: 
+      - MONGODB_PORT=${PORT_TREECACHE}
+      - RS_HOST=treecache:${PORT_TREECACHE}  
+    healthcheck:
+      test: ["CMD-SHELL", "mongo -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD  --port ${PORT_TREECACHE} --eval 'typeof rs.status().members[0] === \"undefined\" ? quit(1) : quit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s  
+    ports:
+      - ${PORT_TREECACHE}
+    volumes: 
+      - type: bind
+        source: ./scripts/mongo
+        target: /docker-entrypoint-initdb.d/
+    command: [ "--bind_ip_all", "--replSet", "rs0", "--wiredTigerCacheSizeGB", "1.5", "--port", "${PORT_TREECACHE}"]
+
+  concierge:
+    image: $DOCKER_REPO_CONCIERGE:$TAG_CONCIERGE
+    ports:
+      - ${PORT_CONCIERGE}
+    environment:
+      - URI_MONGO=${URI_MONGO}
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-concierge
+        target: /scripts   
+    command: ["/bin/bash", 
+                    "-c", 
+                    "chmod a+x /scripts/init.sh && /scripts/init.sh"
+      ]    
+
+  #mongo auth for proxy
+  mongoauth:
+    image: mongo:$TAG_MONGO
+    hostname: mongoauth
+    ports:
+      - ${PORT_MONGOAUTH}
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --port ${PORT_MONGOAUTH} --eval \"db.runCommand({\"ping\": 1})\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 3s    
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-auth
+        target: /scripts  
+    environment:
+      - MONGODB_PORT=${PORT_MONGOAUTH}
+      - USER_DATABASES=$PROVENDB_DB
+    command: ["/bin/bash", 
+                    "-c", 
+                    "chmod a+x /scripts/init.sh && /scripts/init.sh"
+      ]
+
+  tree:
+    image: $DOCKER_REPO_TREE:$TAG_TREE 
+    healthcheck:
+      test: ["CMD-SHELL", "! grep -q ERROR tree.log  && netstat -an | grep ${PORT_TREE} > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s 
+    ports:
+      - ${PORT_TREE}
+    environment: 
+      - TREE_HOST_PORT=0.0.0.0:${PORT_TREE}
+      - TREE_ENV=dev
+      - mongoTargetDB=$PROVENDB_DB
+      - URI_MONGO=${URI_MONGO}
+      - PORT_TREECACHE=${PORT_TREECACHE}
+      - TREE_IGNOREDCOLLECTIONS=${PROVENDB_IGNORE_COLLECTIONS}
+      - PORT_TREE=${PORT_TREE}
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-tree
+        target: /scripts  
+    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]
+
+  proxy:
+    image: $DOCKER_REPO_PROXY:$TAG_PROXY
+    hostname: proxy
+    env_file:
+      - env/common.env
+    environment:
+      - USER_DATABASES=$PROVENDB_DB
+      - ENV_PROVENDB_PROXY_PORT=${PORT_PROXY}
+      - ENV_PROVENDB_MONGO_AUTH_URI=mongodb://mongoauth:${PORT_MONGOAUTH}
+      - ENV_TREE_SERVICE_HOST=tree
+      - ENV_TREE_SERVICE_PORT=${PORT_TREE}
+      - PROXY_HOST=proxy
+      - PROXY_PORT=${PORT_PROXY}  
+      - URI_MONGO=${URI_MONGO}
+      - PROXY_LOG_LEVEL=INFO
+      - ENV_ANCHOR_SERVICE_HOST=anchor
+      - ENV_ANCHOR_SERVICE_PORT=${PORT_ANCHOR}
+      - ENV_PROVENDB_PROXY_CHAINPOINT_NODES=${CHAINPOINT_NODE}
+      - ENV_PROVENDB_PROXY_IGNORE_COLLECTIONS=${PROVENDB_IGNORE_COLLECTIONS}
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9091/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s  
+    ports:
+      - "${PORT_PROXY}:${PORT_PROXY}"
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-proxy
+        target: /scripts    
+      - type: bind
+        source: ./ssl_cert
+        target: /ssl_cert  
+    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
+
+  anchor:
+    image: $DOCKER_REPO_ANCHOR:$TAG_ANCHOR
+    hostname: anchor
+    env_file:
+      - env/common.env
+    environment:
+      - ANCHOR_HOST_PORT=0.0.0.0:${PORT_ANCHOR}
+      - ANCHOR_VERIFIER_HOST_PORT=0.0.0.0:${PORT_ANCHOR_VERIFIER}
+      - ANCHOR_VERIFIER_URI_PREFIX=http://anchor:${PORT_ANCHOR_VERIFIER}
+      - ANCHOR_ENV=dev
+      - ANCHOR_ETH_MAINNET_ENABLED=true
+      - ANCHOR_ETH_ENABLED=true
+      - ANCHOR_ETH_MAINNET_BATCH_SIZE=32768
+      - ANCHOR_ETH_MAINNET_BATCH_TIME=5m
+      - ANCHOR_ETH_MAINNET_BATCH_TTL=12h
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -an | grep ${PORT_ANCHOR} > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s  
+    ports:
+      - "${PORT_ANCHOR}:${PORT_ANCHOR}"
+      - "${PORT_ANCHOR_VERIFIER}:${PORT_ANCHOR_VERIFIER}"
+    volumes: 
+      - type: bind
+        source: ./scripts/provendb-anchor
+        target: /scripts  
+    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
+
+
+volumes:
+  provendb-data:     
