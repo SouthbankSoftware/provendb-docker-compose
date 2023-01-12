@@ -164,7 +164,7 @@ services:
       - type: bind
         source: ./ssl_cert
         target: /ssl_cert  
-    entrypoint: ["/bin/sh", "-c", "apk add bash && chmod a+x /scripts/init.sh && /scripts/init.sh"]   
+    entrypoint: ["/bin/bash", "-c", " chmod a+x /scripts/init.sh && /scripts/init.sh"]   
 
   anchor:
     image: $DOCKER_REPO_ANCHOR:$TAG_ANCHOR

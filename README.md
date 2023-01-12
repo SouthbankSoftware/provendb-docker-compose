@@ -44,6 +44,9 @@ Check [Compatibility](#compatibility) section for versions that are known to wor
 - `docker`
 - `docker-compose`
 
+Make sure you can log into github container registry:
+
+`docker login ghcr.io -u YOUR_USERNAME`
 ## Quick Start Guide
 
 Either watch the video below, or follow the written steps to get started with ProvenDB as a standalone container.
