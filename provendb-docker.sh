@@ -9,7 +9,7 @@ export PROVENDB_DB='provendb'
 export MONGOADMIN_URI=mongodb://pdbroot:click123@localhost:27027/provendb?authSource=admin
 export PROVENDB_URI=mongodb://pdbuser:click123@localhost:27018/provendb
 
-cd ~/git/provendb-docker-compose
+
 . .env
 if [ "$#" -eq 0 ];then
   echo "Usage: $0 start|stop|load|reset|pull|reset"
@@ -21,11 +21,9 @@ pdreset() {
 }
 pdpull() {
    docker-compose pull
-   #docker pull asia.gcr.io/provendb/provendb-verify:latest
-   az login
-   az acr login --name provendbDev
-   docker pull provendbdev.azurecr.io/provendb-verify:latest   
-   docker pull provendbdev.azurecr.io/provendb-verify:latest
+
+   docker pull southbanksoftware/provendb-verify:dockerCompose 
+ 
 }
 
 pdstop() {
