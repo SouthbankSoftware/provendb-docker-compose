@@ -9,7 +9,7 @@ export PROVENDB_DB='provendb'
 export MONGOADMIN_URI=mongodb://pdbroot:click123@localhost:27027/provendb?authSource=admin
 export PROVENDB_URI=mongodb://pdbuser:click123@localhost:27018/provendb
 
-cd ~/git/provendb-docker-compose
+ 
 . .env
 if [ "$#" -eq 0 ];then
   echo "Usage: $0 start|stop|load|reset|pull|reset"
@@ -20,12 +20,18 @@ pdreset() {
   docker volume rm `docker volume ls | grep provendb-data|awk '{print $2}'`
 }
 pdpull() {
-   docker-compose pull
+   docker compose pull
    #docker pull asia.gcr.io/provendb/provendb-verify:latest
+   #az login
+   #az acr login --name provendbDev
+   #docker pull provendbdev.azurecr.io/provendb-verify:latest   
+   #docker pull provendbdev.azurecr.io/provendb-verify:latest
+}
+
+pdpullVerify() {
    az login
    az acr login --name provendbDev
-   docker pull provendbdev.azurecr.io/provendb-verify:latest   
-   docker pull provendbdev.azurecr.io/provendb-verify:latest
+   docker pull provendbdev.azurecr.io/provendb-verify:latest    
 }
 
 pdstop() {
@@ -37,8 +43,13 @@ pdquickStart() {
 
 pdstart() {
    docker compose -f docker-compose.yml -f docker-compose.standalone.yml up  -d
-   sleep 30
-   echo "db.runCommand({setLogLevel:'info'});"|provendbShell.sh mongodb://pdbuser:click123@localhost:${PORT_PROXY}/${PROVENDB_DB}
+   connect
+}
+
+connect () {
+  echo "Waiting 60s for services to start"
+  sleep 60
+  docker exec -it $(docker ps|grep proxy|cut -f1 -d' ') mongo mongodb://pdbuser:click123@localhost:27018/provendb
 }
 
 while [ $# -gt 0 ];do
@@ -73,6 +84,5 @@ while [ $# -gt 0 ];do
   shift
 done
 
-sleep 60
 
-docker exec -it $(docker ps|grep proxy|cut -f1 -d' ') mongo mongodb://pdbuser:click123@localhost:27018/provendb
+

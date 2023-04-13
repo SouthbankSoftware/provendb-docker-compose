@@ -79,7 +79,8 @@ services:
     command: ["/bin/bash", 
                     "-c", 
                     "chmod a+x /scripts/init.sh && /scripts/init.sh"
-      ]    
+      ]
+    #command: ["schema"," --uri", "${URI_MONGO}"]   
 
   #mongo auth for proxy
   mongoauth:

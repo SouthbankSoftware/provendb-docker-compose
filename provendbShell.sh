@@ -46,11 +46,11 @@ if [ "$PROVENDB_SHELL_JS" = "" ];then
   exit 1
 fi
 
-WHICHMONGO=`which mongo`; 
+WHICHMONGO=`which mongosh`; 
 if [ "$WHICHMONGO" = "" ];then
   echo "Can't find mongo shell in path: Please install mongo client"
 else
   echo ProvenDB shell helper
-  mongo $*  $PROVENDB_SHELL_JS --shell --quiet 
+  mongosh $*  $PROVENDB_SHELL_JS --shell --quiet 
 fi
  
